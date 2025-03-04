@@ -1,3 +1,5 @@
+using ristorante_backend.Repositories;
+
 
 namespace ristorante_backend
 {
@@ -7,16 +9,22 @@ namespace ristorante_backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            
+
+
+            //Repositories
+            builder.Services.AddSingleton<DishRepository>();
+            builder.Services.AddSingleton<CategoryRepository>();
+            builder.Services.AddSingleton<MenuRepository>();
+            
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -24,12 +32,8 @@ namespace ristorante_backend
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }
