@@ -40,17 +40,17 @@ namespace ristorante_backend.Repositories
             }
         }
 
+
         public async Task<List<Category>> GetCategories(int? limit = null)
         {
             using SqlConnection conn = new(connection_string);
             var categories = new Dictionary<int, Category>();
 
             string query = @$"SELECT {(limit == null ? "" : $"TOP {limit}")} 
-                             C.*, D.Id as dishId, D.Name as dishName,
-                             D.Description as dishDescription, D.Price as dishPrice
-                             FROM Category C
-                             LEFT JOIN Dish D ON C.Id = D.CategoryId";
-
+                         C.*, D.Id as dishId, D.Name as dishName,
+                         D.Description as dishDescription, D.Price as dishPrice
+                         FROM Categories C
+                         LEFT JOIN Dishes D ON C.Id = D.CategoryId";  
             await conn.OpenAsync();
             using SqlCommand cmd = new(query, conn);
             using SqlDataReader reader = await cmd.ExecuteReaderAsync();
@@ -67,10 +67,10 @@ namespace ristorante_backend.Repositories
             var categories = new Dictionary<int, Category>();
 
             string query = @"SELECT C.*, D.Id as dishId, D.Name as dishName,
-                           D.Description as dishDescription, D.Price as dishPrice
-                           FROM Category C
-                           LEFT JOIN Dish D ON C.Id = D.CategoryId
-                           WHERE C.Id = @id";
+                       D.Description as dishDescription, D.Price as dishPrice
+                       FROM Categories C
+                       LEFT JOIN Dishes D ON C.Id = D.CategoryId
+                       WHERE C.Id = @id";
 
             await conn.OpenAsync();
             using SqlCommand cmd = new(query, conn);
@@ -89,10 +89,10 @@ namespace ristorante_backend.Repositories
             var categories = new Dictionary<int, Category>();
 
             string query = @"SELECT C.*, D.Id as dishId, D.Name as dishName,
-                           D.Description as dishDescription, D.Price as dishPrice
-                           FROM Category C
-                           LEFT JOIN Dish D ON C.Id = D.CategoryId
-                           ORDER BY C.Name";
+                       D.Description as dishDescription, D.Price as dishPrice
+                       FROM Categories C
+                       LEFT JOIN Dishes D ON C.Id = D.CategoryId
+                       ORDER BY C.Name";
 
             await conn.OpenAsync();
             using SqlCommand cmd = new(query, conn);
@@ -107,8 +107,7 @@ namespace ristorante_backend.Repositories
         public async Task<int> CreateCategoryAsync(Category category)
         {
             using SqlConnection conn = new(connection_string);
-            string query = "INSERT INTO Category (Name) VALUES (@name); SELECT SCOPE_IDENTITY();";
-
+            string query = "INSERT INTO Categories (Name) VALUES (@name); SELECT SCOPE_IDENTITY();"; 
             await conn.OpenAsync();
             using SqlCommand cmd = new(query, conn);
             cmd.Parameters.AddWithValue("@name", category.Name);
@@ -122,8 +121,7 @@ namespace ristorante_backend.Repositories
         public async Task<int> UpdateCategory(int id, Category category)
         {
             using SqlConnection conn = new(connection_string);
-            string query = "UPDATE Category SET Name = @name WHERE Id = @id";
-
+            string query = "UPDATE Categories SET Name = @name WHERE Id = @id";
             await conn.OpenAsync();
             using SqlCommand cmd = new(query, conn);
             cmd.Parameters.AddWithValue("@id", id);
@@ -160,8 +158,7 @@ namespace ristorante_backend.Repositories
         public async Task<bool> HasDishes(int categoryId)
         {
             using SqlConnection conn = new(connection_string);
-            string query = "SELECT COUNT(*) FROM Dish WHERE CategoryId = @categoryId";
-
+            string query = "SELECT COUNT(*) FROM Dishes WHERE CategoryId = @categoryId";  
             await conn.OpenAsync();
             using SqlCommand cmd = new(query, conn);
             cmd.Parameters.AddWithValue("@categoryId", categoryId);

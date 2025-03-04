@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using ristorante_backend.Repositories;
 
 
@@ -8,6 +9,12 @@ namespace ristorante_backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
 
             builder.Services.AddControllers();
             
