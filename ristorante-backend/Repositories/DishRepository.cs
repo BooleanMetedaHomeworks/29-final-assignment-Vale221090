@@ -6,6 +6,7 @@ namespace ristorante_backend.Repositories
     public class DishRepository
     {
         private const string connection_string = "Data Source=localhost;Initial Catalog=Ristorante;Integrated Security=True;Pooling=False;Encrypt=True;Trust Server Certificate=True";
+        
 
         public void DishReader(SqlDataReader reader, Dictionary<int, Dish> dishes)
         {
