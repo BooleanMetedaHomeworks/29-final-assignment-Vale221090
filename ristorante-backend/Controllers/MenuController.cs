@@ -59,10 +59,10 @@ namespace ristorante_backend.Controllers
                     return BadRequest(ModelState);
                 }
 
-                menu.Id = 0; // Assicura che sia un nuovo menù
+                menu.Id = 0; // Mi assicuro che sia un nuovo menù
                 int menuId = await _menuRepository.CreateMenuAsync(menu);
 
-                // Recupera il menù appena creato per la risposta
+                // Recupero il menù appena creato per la risposta
                 var createdMenu = await _menuRepository.GetMenuById(menuId);
                 return CreatedAtAction(nameof(GetMenuById), new { id = menuId }, createdMenu);
             }
@@ -115,20 +115,70 @@ namespace ristorante_backend.Controllers
             }
         }
 
+     
         [HttpPost("{menuId}/dishes/{dishId}")]
-        // In MenuRepository
-        public async Task AddDishToMenu(int menuId, int dishId)
+        public async Task<IActionResult> AddDishToMenu(int menuId, int dishId)
         {
-            using var conn = new SqlConnection(connection_string);
-            await conn.OpenAsync();
+            try
+            {
+                using var conn = new SqlConnection(connection_string);
+                await conn.OpenAsync();
 
-            var query = "INSERT INTO MenuDishes (MenuId, DishId) VALUES (@MenuId, @DishId)";
-            using var cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@MenuId", menuId);
-            cmd.Parameters.AddWithValue("@DishId", dishId);
+                // Prima verifico se la relazione già esiste
+                string checkQuery = "SELECT COUNT(1) FROM MenuDishes WHERE MenuId = @MenuId AND DishId = @DishId";
+                using (var checkCmd = new SqlCommand(checkQuery, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@MenuId", menuId);
+                    checkCmd.Parameters.AddWithValue("@DishId", dishId);
+                    int exists = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
 
-            await cmd.ExecuteNonQueryAsync();
+                    if (exists > 0)
+                    {
+                        return BadRequest("Il piatto è già presente nel menu");
+                    }
+                }
+
+                // Verifico se il menu esiste
+                string checkMenuQuery = "SELECT COUNT(1) FROM Menus WHERE Id = @MenuId";
+                using (var checkMenuCmd = new SqlCommand(checkMenuQuery, conn))
+                {
+                    checkMenuCmd.Parameters.AddWithValue("@MenuId", menuId);
+                    int menuExists = Convert.ToInt32(await checkMenuCmd.ExecuteScalarAsync());
+
+                    if (menuExists == 0)
+                    {
+                        return NotFound($"Menu con ID {menuId} non trovato");
+                    }
+                }
+
+                // Verifico se il piatto esiste
+                string checkDishQuery = "SELECT COUNT(1) FROM Dishes WHERE Id = @DishId";
+                using (var checkDishCmd = new SqlCommand(checkDishQuery, conn))
+                {
+                    checkDishCmd.Parameters.AddWithValue("@DishId", dishId);
+                    int dishExists = Convert.ToInt32(await checkDishCmd.ExecuteScalarAsync());
+
+                    if (dishExists == 0)
+                    {
+                        return NotFound($"Piatto con ID {dishId} non trovato");
+                    }
+                }
+
+                // Se arriviamo qui, posso procedere con l'inserimento
+                var query = "INSERT INTO MenuDishes (MenuId, DishId) VALUES (@MenuId, @DishId)";
+                using var cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@MenuId", menuId);
+                cmd.Parameters.AddWithValue("@DishId", dishId);
+
+                await cmd.ExecuteNonQueryAsync();
+                return Ok("Piatto aggiunto al menu con successo");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Errore durante l'aggiunta del piatto al menu: {ex.Message}");
+            }
         }
+
 
 
         [HttpDelete("{menuId}/dishes/{dishId}")]

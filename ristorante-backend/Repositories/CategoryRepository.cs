@@ -10,14 +10,14 @@ namespace ristorante_backend.Repositories
         public void CategoryReader(SqlDataReader reader, Dictionary<int, Category> categories)
         {
             int id = reader.GetInt32(reader.GetOrdinal("id"));
-            // Modifica qui per gestire correttamente la nullabilità
+            // Gestisco correttamente la nullabilità
             if (!categories.TryGetValue(id, out Category? category))
             {
                 category = new Category
                 {
                     Id = id,
                     Name = reader.GetString(reader.GetOrdinal("name")),
-                    Dishes = new List<Dish>()  // Inizializza sempre la lista
+                    Dishes = new List<Dish>()  
                 };
                 categories.Add(id, category);
             }
@@ -141,7 +141,7 @@ namespace ristorante_backend.Repositories
 
             try
             {
-                // Aggiorna i piatti impostando CategoryId a NULL
+                // Aggiorno i piatti impostando CategoryId a NULL
                 string updateDishesQuery = @"UPDATE Dishes 
                                    SET CategoryId = NULL 
                                    WHERE CategoryId = @id";
@@ -152,7 +152,7 @@ namespace ristorante_backend.Repositories
                     await updateCmd.ExecuteNonQueryAsync();
                 }
 
-                // Elimina la categoria
+                // Elimino la categoria
                 string deleteQuery = @"DELETE FROM Categories 
                              WHERE Id = @id";
 
