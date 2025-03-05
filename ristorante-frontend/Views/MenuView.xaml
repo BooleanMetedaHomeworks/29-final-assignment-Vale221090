@@ -1,0 +1,106 @@
+﻿<!-- Views/MenuView.xaml -->
+<Page x:Class="ristorante_frontend.Views.MenuView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
+      d:DesignHeight="700" d:DesignWidth="1160"
+      Background="#F5F6FA">
+
+    <Page.Resources>
+        <Style x:Key="ListViewStyle" TargetType="ListView">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <Style x:Key="ContentBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Menu List -->
+        <Border Grid.Column="0" 
+                Style="{StaticResource ContentBorder}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,15">
+                    <TextBlock Text="Menù Disponibili" 
+                             FontSize="24" 
+                             FontWeight="Bold"
+                             Foreground="#1976D2"/>
+                    <Button Content="Nuovo Menù" 
+                            Style="{StaticResource NavigationButton}"
+                            Margin="0,10,0,0"
+                            Click="OnNewMenuClick"/>
+                </StackPanel>
+
+                <ListView Style="{StaticResource ListViewStyle}"
+                          x:Name="MenuList">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" 
+                                     FontSize="16" 
+                                     Padding="10,8"/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </DockPanel>
+        </Border>
+
+        <!-- Transfer Buttons -->
+        <StackPanel Grid.Column="1" 
+                    Margin="10,0" 
+                    VerticalAlignment="Center">
+            <Button Content="→" 
+                    Style="{StaticResource NavigationButton}"
+                    Click="OnAddDishToMenu"/>
+                        <Button Content="←"
+                    Style="{StaticResource NavigationButton}"
+                    Margin="0,10,0,0"
+                    Background="#F44336"
+                    Click="OnRemoveDishFromMenu"/>
+
+        </StackPanel>
+
+        <!-- Dishes List -->
+        <Border Grid.Column="2" 
+                Style="{StaticResource ContentBorder}">
+            <DockPanel>
+                <TextBlock Text="Piatti nel Menù" 
+                          FontSize="24" 
+                          FontWeight="Bold"
+                          Foreground="#1976D2"
+                          DockPanel.Dock="Top"
+                          Margin="0,0,0,15"/>
+
+                <ListView Style="{StaticResource ListViewStyle}"
+                          x:Name="DishList">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" 
+                                         FontSize="16" 
+                                         FontWeight="SemiBold"/>
+                                <TextBlock>
+                                    <Run Text="€"/>
+                                    <Run Text="{Binding Price, StringFormat=N2}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Page>

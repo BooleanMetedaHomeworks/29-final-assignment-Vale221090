@@ -1,0 +1,103 @@
+﻿<Window x:Class="ristorante_frontend.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Gestionale Ristorante" 
+        Height="800" 
+        Width="1200"
+        MinWidth="800"
+        MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="14"
+        FontFamily="{materialDesign:MaterialDesignFont}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <Style x:Key="NavigationButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                <Setter Property="Height" Value="45"/>
+                <Setter Property="Margin" Value="8,0"/>
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource Self}, Converter={StaticResource MaterialDesignDarkenConverter}}"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <materialDesign:DialogHost Identifier="RootDialog">
+        <DockPanel>
+            <!-- Top AppBar -->
+            <materialDesign:ColorZone Mode="PrimaryDark" 
+                                    DockPanel.Dock="Top"
+                                    Padding="16">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                        <TextBlock VerticalAlignment="Center" 
+                                 Margin="16,0"
+                                 Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                 Text="Ristorante Manager"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" 
+                              DockPanel.Dock="Right" 
+                              HorizontalAlignment="Right">
+                        <Button Style="{StaticResource NavigationButton}"
+                                materialDesign:ButtonAssist.CornerRadius="4"
+                                Click="OnMenuClick">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="RestaurantMenu" Margin="0,0,8,0"/>
+                                <TextBlock Text="Menù"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource NavigationButton}"
+                                materialDesign:ButtonAssist.CornerRadius="4"
+                                Click="OnDishesClick">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FoodVariant" Margin="0,0,8,0"/>
+                                <TextBlock Text="Piatti"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource NavigationButton}"
+                                materialDesign:ButtonAssist.CornerRadius="4"
+                                Click="OnCategoriesClick">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FormatListBulleted" Margin="0,0,8,0"/>
+                                <TextBlock Text="Categorie"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </materialDesign:ColorZone>
+            <Grid>
+                <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
+            </Grid>
+
+            <!-- Main Content -->
+            <Grid>
+                <!-- Removed duplicate Frame definition -->
+                <!-- Loading Progress -->
+                <materialDesign:Card x:Name="LoadingCard"
+                                   Width="100"
+                                   Height="100"
+                                   Visibility="Collapsed"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center">
+                    <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                               Value="0"
+                               IsIndeterminate="True"/>
+                </materialDesign:Card>
+            </Grid>
+        </DockPanel>
+    </materialDesign:DialogHost>
+</Window>
