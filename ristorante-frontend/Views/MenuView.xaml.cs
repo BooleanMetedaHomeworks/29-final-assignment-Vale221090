@@ -23,7 +23,7 @@ namespace ristorante_frontend.Views
             if (MenuList.SelectedItem is Menu selectedMenu && DishList.SelectedItem is Dish selectedDish)
             {
                 selectedMenu.Dishes.Add(selectedDish);
-                // Opzionale: aggiornare la vista
+                // Opzionale: aggiornaro la vista
                 DishList.Items.Refresh();
             }
             else
@@ -39,7 +39,7 @@ namespace ristorante_frontend.Views
             if (MenuList.SelectedItem is Menu selectedMenu && DishList.SelectedItem is Dish selectedDish)
             {
                 selectedMenu.Dishes.Remove(selectedDish);
-                // Opzionale: aggiornare la vista
+                // Opzionale: aggiornaro la vista
                 DishList.Items.Refresh();
             }
             else

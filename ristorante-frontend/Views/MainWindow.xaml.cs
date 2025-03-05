@@ -22,7 +22,7 @@ namespace ristorante_frontend.Views
 
         private void OnCategoriesClick(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new CategoriesView());
+            MainFrame.Navigate(new CategoryView());
         }
     }
 }

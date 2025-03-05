@@ -1,7 +1,130 @@
-﻿<Page x:Class="ristorante_frontend.Views.CategoriesView"
+﻿<Page x:Class="ristorante_frontend.Views.CategoryView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid>
-        <TextBlock Text="Vista Categorie" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      Title="Gestione Categorie"
+      Background="#F5F5F5">
+
+    <Page.Resources>
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="4"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header con ricerca e pulsante aggiungi -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Background="White" 
+                    CornerRadius="4" 
+                    BorderThickness="1"
+                    BorderBrush="#E0E0E0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <materialDesign:PackIcon Kind="Search" 
+                                           Margin="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="#757575"/>
+                    <TextBox x:Name="SearchBox" 
+                            Grid.Column="1"
+                            Margin="0,0,12,0"
+                            Padding="8"
+                            BorderThickness="0"
+                            VerticalAlignment="Center"
+                            materialDesign:HintAssist.Hint="Cerca categoria..."
+                            TextChanged="OnSearchTextChanged"/>
+                </Grid>
+            </Border>
+
+            <Button Grid.Column="1"
+                    Style="{StaticResource ActionButton}"
+                    Margin="16,0,0,0"
+                    Click="OnAddCategoryClick">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Plus" 
+                                           Margin="0,0,8,0"
+                                           VerticalAlignment="Center"/>
+                    <TextBlock Text="Nuova Categoria" 
+                             VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Lista Categorie -->
+        <ListView x:Name="CategoriesList" 
+                  Grid.Row="1"
+                  Background="White"
+                  BorderThickness="1"
+                  BorderBrush="#E0E0E0">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="16"/>
+                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                    <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Text="{Binding Nome}" 
+                                     FontSize="16"
+                                     FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Descrizione}" 
+                                     Foreground="#666666"
+                                     Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" 
+                                  Orientation="Horizontal">
+                            <Button Style="{StaticResource ActionButton}"
+                                   Background="#FFA726"
+                                   Click="OnEditClick">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Edit" 
+                                                           Margin="0,0,8,0"/>
+                                    <TextBlock Text="Modifica"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource ActionButton}"
+                                   Background="#DC3545"
+                                   Click="OnDeleteClick">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Delete" 
+                                                           Margin="0,0,8,0"/>
+                                    <TextBlock Text="Elimina"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        
     </Grid>
 </Page>
