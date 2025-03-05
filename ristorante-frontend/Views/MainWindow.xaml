@@ -3,101 +3,101 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="Gestionale Ristorante" 
-        Height="800" 
-        Width="1200"
-        MinWidth="800"
-        MinHeight="600"
+        Height="800" Width="1200"
+        MinWidth="800" MinHeight="600"
         WindowStartupLocation="CenterScreen"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        Background="{DynamicResource MaterialDesignPaper}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="14"
-        FontFamily="{materialDesign:MaterialDesignFont}">
+        Background="#F5F6FA">
 
     <Window.Resources>
-        <ResourceDictionary>
-            <Style x:Key="NavigationButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                <Setter Property="Height" Value="45"/>
-                <Setter Property="Margin" Value="8,0"/>
-                <Setter Property="FontSize" Value="15"/>
-                <Setter Property="Foreground" Value="White"/>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource Self}, Converter={StaticResource MaterialDesignDarkenConverter}}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-        </ResourceDictionary>
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1976D2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
-    <materialDesign:DialogHost Identifier="RootDialog">
-        <DockPanel>
-            <!-- Top AppBar -->
-            <materialDesign:ColorZone Mode="PrimaryDark" 
-                                    DockPanel.Dock="Top"
-                                    Padding="16">
-                <DockPanel>
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                        <TextBlock VerticalAlignment="Center" 
-                                 Margin="16,0"
-                                 Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                                 Text="Ristorante Manager"/>
-                    </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Horizontal" 
-                              DockPanel.Dock="Right" 
-                              HorizontalAlignment="Right">
-                        <Button Style="{StaticResource NavigationButton}"
-                                materialDesign:ButtonAssist.CornerRadius="4"
-                                Click="OnMenuClick">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="RestaurantMenu" Margin="0,0,8,0"/>
-                                <TextBlock Text="Menù"/>
-                            </StackPanel>
-                        </Button>
+        <!-- Navigation Bar -->
+        <Border Grid.Row="0" 
+                Background="White" 
+                Padding="15,10">
+            <DockPanel>
+                <TextBlock Text="Ristorante Manager"
+                          FontSize="24"
+                          FontWeight="SemiBold"
+                          VerticalAlignment="Center"
+                          Margin="10,0"
+                          DockPanel.Dock="Left"/>
 
-                        <Button Style="{StaticResource NavigationButton}"
-                                materialDesign:ButtonAssist.CornerRadius="4"
-                                Click="OnDishesClick">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="FoodVariant" Margin="0,0,8,0"/>
-                                <TextBlock Text="Piatti"/>
-                            </StackPanel>
-                        </Button>
+                <StackPanel Orientation="Horizontal" 
+                          HorizontalAlignment="Right">
+                    <Button Style="{StaticResource NavButton}"
+                            Click="OnMenuClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Menù" Margin="8,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource NavButton}"
+                            Click="OnDishesClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Piatti" Margin="8,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource NavButton}"
+                            Click="OnCategoriesClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Categorie" Margin="8,0"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
 
-                        <Button Style="{StaticResource NavigationButton}"
-                                materialDesign:ButtonAssist.CornerRadius="4"
-                                Click="OnCategoriesClick">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="FormatListBulleted" Margin="0,0,8,0"/>
-                                <TextBlock Text="Categorie"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                </DockPanel>
-            </materialDesign:ColorZone>
-            <Grid>
-                <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
-            </Grid>
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="20">
+            <Frame x:Name="MainFrame" 
+                   NavigationUIVisibility="Hidden"/>
 
-            <!-- Main Content -->
-            <Grid>
-                <!-- Removed duplicate Frame definition -->
-                <!-- Loading Progress -->
-                <materialDesign:Card x:Name="LoadingCard"
-                                   Width="100"
-                                   Height="100"
-                                   Visibility="Collapsed"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center">
-                    <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
-                               Value="0"
-                               IsIndeterminate="True"/>
-                </materialDesign:Card>
-            </Grid>
-        </DockPanel>
-    </materialDesign:DialogHost>
+            <!-- Loading Overlay -->
+            <Border x:Name="LoadingCard"
+                    Width="100" Height="100"
+                    Background="White"
+                    CornerRadius="8"
+                    Visibility="Collapsed"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <ProgressBar IsIndeterminate="True"
+                           Width="40" Height="40"/>
+            </Border>
+        </Grid>
+    </Grid>
 </Window>

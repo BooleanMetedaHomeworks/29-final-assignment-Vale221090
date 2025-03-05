@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows;
 
 namespace ristorante_frontend.Views
 {
@@ -9,7 +7,7 @@ namespace ristorante_frontend.Views
         public MainWindow()
         {
             InitializeComponent();
-           
+
         }
 
         private void OnMenuClick(object sender, RoutedEventArgs e)

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-
+using ristorante_backend.Models;
+using Menu = ristorante_backend.Models.Menu;
 
 namespace ristorante_frontend.Views
 {
@@ -15,5 +11,43 @@ namespace ristorante_frontend.Views
         {
             InitializeComponent();
         }
+
+        private void OnNewMenuClick(object sender, RoutedEventArgs e)
+        {
+            var newMenu = new Menu { Name = "Nuovo Menù" };
+            MenuList.Items.Add(newMenu);
+        }
+
+        private void OnAddDishToMenu(object sender, RoutedEventArgs e)
+        {
+            if (MenuList.SelectedItem is Menu selectedMenu && DishList.SelectedItem is Dish selectedDish)
+            {
+                selectedMenu.Dishes.Add(selectedDish);
+                // Opzionale: aggiornare la vista
+                DishList.Items.Refresh();
+            }
+            else
+            {
+                MessageBox.Show("Seleziona un menù e un piatto prima di procedere.", "Attenzione",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+
+        private void OnRemoveDishFromMenu(object sender, RoutedEventArgs e)
+        {
+            if (MenuList.SelectedItem is Menu selectedMenu && DishList.SelectedItem is Dish selectedDish)
+            {
+                selectedMenu.Dishes.Remove(selectedDish);
+                // Opzionale: aggiornare la vista
+                DishList.Items.Refresh();
+            }
+            else
+            {
+                MessageBox.Show("Seleziona un menù e un piatto da rimuovere prima di procedere.", "Attenzione",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
     }
 }

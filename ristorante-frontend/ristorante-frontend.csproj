@@ -21,5 +21,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="9.0.2" />
     <PackageReference Include="MvcContrib" Version="2.0.95" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ristorante-backend\ristorante-backend.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\MainWindow.xaml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Page>
+  </ItemGroup>
 
 </Project>
