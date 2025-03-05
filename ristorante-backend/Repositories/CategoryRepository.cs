@@ -10,19 +10,21 @@ namespace ristorante_backend.Repositories
         public void CategoryReader(SqlDataReader reader, Dictionary<int, Category> categories)
         {
             int id = reader.GetInt32(reader.GetOrdinal("id"));
-            if (categories.TryGetValue(id, out Category category) == false)
+            // Modifica qui per gestire correttamente la nullabilità
+            if (!categories.TryGetValue(id, out Category? category))
             {
                 category = new Category
                 {
                     Id = id,
-                    Name = reader.GetString(reader.GetOrdinal("name"))
+                    Name = reader.GetString(reader.GetOrdinal("name")),
+                    Dishes = new List<Dish>()  // Inizializza sempre la lista
                 };
                 categories.Add(id, category);
             }
 
-            if (reader.IsDBNull(reader.GetOrdinal("dishId")) == false)
+            if (!reader.IsDBNull(reader.GetOrdinal("dishId")))
             {
-                Dish dish = new Dish
+                Dish dish = new()
                 {
                     Id = reader.GetInt32(reader.GetOrdinal("dishId")),
                     Name = reader.GetString(reader.GetOrdinal("dishName")),
@@ -50,7 +52,7 @@ namespace ristorante_backend.Repositories
                          C.*, D.Id as dishId, D.Name as dishName,
                          D.Description as dishDescription, D.Price as dishPrice
                          FROM Categories C
-                         LEFT JOIN Dishes D ON C.Id = D.CategoryId";  
+                         LEFT JOIN Dishes D ON C.Id = D.CategoryId";
             await conn.OpenAsync();
             using SqlCommand cmd = new(query, conn);
             using SqlDataReader reader = await cmd.ExecuteReaderAsync();
@@ -107,7 +109,7 @@ namespace ristorante_backend.Repositories
         public async Task<int> CreateCategoryAsync(Category category)
         {
             using SqlConnection conn = new(connection_string);
-            string query = "INSERT INTO Categories (Name) VALUES (@name); SELECT SCOPE_IDENTITY();"; 
+            string query = "INSERT INTO Categories (Name) VALUES (@name); SELECT SCOPE_IDENTITY();";
             await conn.OpenAsync();
             using SqlCommand cmd = new(query, conn);
             cmd.Parameters.AddWithValue("@name", category.Name);
@@ -133,32 +135,49 @@ namespace ristorante_backend.Repositories
         public async Task<bool> DeleteCategory(int id)
         {
             using SqlConnection conn = new(connection_string);
-
-            // Verifica se ci sono piatti associati
-            string checkQuery = "SELECT COUNT(*) FROM Dish WHERE CategoryId = @id";
             await conn.OpenAsync();
-            using (SqlCommand checkCmd = new(checkQuery, conn))
-            {
-                checkCmd.Parameters.AddWithValue("@id", id);
-                int dishCount = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
-                if (dishCount > 0)
-                {
-                    return false; // Non possiamo eliminare una categoria con piatti associati
-                }
-            }
 
-            // Se non ci sono piatti, procedi con l'eliminazione
-            string deleteQuery = "DELETE FROM Category WHERE Id = @id";
-            using SqlCommand deleteCmd = new(deleteQuery, conn);
-            deleteCmd.Parameters.AddWithValue("@id", id);
-            int result = await deleteCmd.ExecuteNonQueryAsync();
-            return result > 0;
+            using SqlTransaction transaction = (SqlTransaction)await conn.BeginTransactionAsync();
+
+            try
+            {
+                // Aggiorna i piatti impostando CategoryId a NULL
+                string updateDishesQuery = @"UPDATE Dishes 
+                                   SET CategoryId = NULL 
+                                   WHERE CategoryId = @id";
+
+                using (SqlCommand updateCmd = new(updateDishesQuery, conn, transaction))
+                {
+                    updateCmd.Parameters.AddWithValue("@id", id);
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
+
+                // Elimina la categoria
+                string deleteQuery = @"DELETE FROM Categories 
+                             WHERE Id = @id";
+
+                using SqlCommand deleteCmd = new(deleteQuery, conn, transaction);
+                deleteCmd.Parameters.AddWithValue("@id", id);
+                int result = await deleteCmd.ExecuteNonQueryAsync();
+
+                await transaction.CommitAsync();
+                return result > 0;
+            }
+            catch (Exception)
+            {
+                if (transaction != null)
+                {
+                    await transaction.RollbackAsync();
+                }
+                throw; 
+            }
         }
+
 
         public async Task<bool> HasDishes(int categoryId)
         {
             using SqlConnection conn = new(connection_string);
-            string query = "SELECT COUNT(*) FROM Dishes WHERE CategoryId = @categoryId";  
+            string query = "SELECT COUNT(*) FROM Dishes WHERE CategoryId = @categoryId AND CategoryId IS NOT NULL";
             await conn.OpenAsync();
             using SqlCommand cmd = new(query, conn);
             cmd.Parameters.AddWithValue("@categoryId", categoryId);

@@ -9,7 +9,7 @@ CREATE TABLE Dishes (
     Name NVARCHAR(100) NOT NULL,
     Description NVARCHAR(500),
     Price DECIMAL(10,2) NOT NULL,
-    CategoryId INT NOT NULL,
+    CategoryId INT NULL,
     FOREIGN KEY (CategoryId) REFERENCES Categories(Id)
 );
 

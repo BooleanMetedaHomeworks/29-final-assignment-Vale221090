@@ -1,10 +1,12 @@
-﻿namespace ristorante_backend.Models
+﻿using System.Collections.Generic;
+
+namespace ristorante_backend.Models
 {
     public class Category
     {
         public int Id { get; set; }
         public required string Name { get; set; }
-        public ICollection<Dish> Dishes { get; set; } = new List<Dish>();
+        public List<Dish> Dishes { get; set; } = new List<Dish>();
 
         public Category() { }
 
@@ -13,6 +15,5 @@
             Id = id;
             Name = name;
         }
-
     }
 }

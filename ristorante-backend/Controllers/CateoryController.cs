@@ -119,12 +119,6 @@ namespace ristorante_backend.Controllers
         {
             try
             {
-                // Verifica se la categoria ha piatti associati
-                if (await _categoryRepository.HasDishes(id))
-                {
-                    return BadRequest("Impossibile eliminare la categoria: contiene piatti associati");
-                }
-
                 var success = await _categoryRepository.DeleteCategory(id);
                 if (!success)
                 {
@@ -138,5 +132,6 @@ namespace ristorante_backend.Controllers
                 return BadRequest($"Errore durante l'eliminazione della categoria: {ex.Message}");
             }
         }
+
     }
 }
