@@ -51,7 +51,7 @@
                 Background="White" 
                 Padding="15,10">
             <DockPanel>
-                <TextBlock Text="Ristorante Manager"
+                <TextBlock Text="Benvenuto, cosa vuoi modificare?"
                           FontSize="24"
                           FontWeight="SemiBold"
                           VerticalAlignment="Center"

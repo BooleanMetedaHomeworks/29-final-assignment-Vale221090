@@ -8,6 +8,8 @@ namespace ristorante_frontend.Models
 {
     public class Dish
     {
+        internal List<Dish> Dishes;
+
         public int Id { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }

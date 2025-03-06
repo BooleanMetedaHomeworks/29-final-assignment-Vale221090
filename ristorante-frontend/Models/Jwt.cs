@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace ristorante_frontend.Models
 {
-    public class ApiResponse<T>
+    public class Jwt
     {
-        public bool Success { get; set; }
-        public string? Message { get; set; }
-        public T? Data { get; set; }
+        public string Token { get; set; }
+        public DateTime Expiration { get; set; }
+
+        public List<string> Roles { get; set; }
     }
 }

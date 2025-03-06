@@ -27,7 +27,6 @@ namespace ristorante_backend.Controllers
                 }
                 else
                 {
-                    // Se vuoi implementare la ricerca per nome, aggiungi il metodo appropriato nel repository
                     var categories = await _categoryRepository.GetCategories();
                     var filtered = categories.Where(c => c.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
                     return Ok(filtered);
@@ -77,10 +76,10 @@ namespace ristorante_backend.Controllers
                     return BadRequest(ModelState);
                 }
 
-                category.Id = 0; // Assicura che sia una nuova categoria
+                category.Id = 0; 
                 int categoryId = await _categoryRepository.CreateCategoryAsync(category);
 
-                // Recupera la categoria appena creata per la risposta
+                // Recupero la categoria appena creata per la risposta
                 var createdCategory = await _categoryRepository.GetCategoryById(categoryId);
                 return CreatedAtAction(nameof(GetCategoryById), new { id = categoryId }, createdCategory);
             }

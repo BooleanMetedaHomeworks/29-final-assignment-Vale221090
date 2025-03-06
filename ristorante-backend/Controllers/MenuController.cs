@@ -10,7 +10,7 @@ namespace ristorante_backend.Controllers
     public class MenuController : ControllerBase
     {
         private readonly MenuRepository _menuRepository;
-        private string connection_string= "Data Source=localhost;Initial Catalog=Ristorante;Integrated Security=True;Trust Server Certificate=True";
+        private string connection_string= "Data Source=localhost;Initial Catalog=Ristorante;Integrated Security=True;Pooling=False;Encrypt=True;Trust Server Certificate=True";
 
         public MenuController(MenuRepository menuRepository)
         {

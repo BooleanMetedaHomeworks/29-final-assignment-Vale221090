@@ -19,7 +19,7 @@ namespace ristorante_frontend.ViewModels
         }
 
         public event EventHandler CanExecuteChanged;
-        public bool CanExecute(object? parameter) 
+        public bool CanExecute(object parameter) 
         {
             return _canExecute();
         }

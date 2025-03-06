@@ -1,114 +1,174 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Json;
-using System.Text.Json;
-using ristorante_backend.Models;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using ristorante_frontend.Models;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
+
+
 
 namespace ristorante_frontend.Services
+
 {
-    public class ApiService
+    public enum ApiServiceResultType
     {
-        private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "http://localhost:4217";
-        public ApiService()
-        {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri(_baseUrl);
-        }
-
-        // API Menu
-        public async Task<List<Menu>> GetMenusAsync(string? name = null, int? limit = null)
-        {
-            var query = new List<string>();
-            if (name != null) query.Add($"name={Uri.EscapeDataString(name)}");
-            if (limit != null) query.Add($"limit={limit}");
-
-            var url = "Menu" + (query.Any() ? "?" + string.Join("&", query) : "");
-            return await _httpClient.GetFromJsonAsync<List<Menu>>(url) ?? new List<Menu>();
-        }
-
-        public async Task<Menu?> GetMenuByIdAsync(int id)
-        {
-            return await _httpClient.GetFromJsonAsync<Menu>($"Menu/{id}");
-        }
-
-        public async Task<Menu?> CreateMenuAsync(Menu menu)
-        {
-            var response = await _httpClient.PostAsJsonAsync("Menu", menu);
-            return await response.Content.ReadFromJsonAsync<Menu>();
-        }
-
-        public async Task UpdateMenuAsync(int id, Menu menu)
-        {
-            await _httpClient.PutAsJsonAsync($"Menu/{id}", menu);
-        }
-
-        public async Task DeleteMenuAsync(int id)
-        {
-            await _httpClient.DeleteAsync($"Menu/{id}");
-        }
-
-        public async Task AddDishToMenuAsync(int menuId, int dishId)
-        {
-            await _httpClient.PostAsync($"Menu/{menuId}/dishes/{dishId}", null);
-        }
-
-        public async Task RemoveDishFromMenuAsync(int menuId, int dishId)
-        {
-            await _httpClient.DeleteAsync($"Menu/{menuId}/dishes/{dishId}");
-        }
-
-        // API Piatti
-        public async Task<List<Dish>> GetDishesAsync()
-        {
-            return await _httpClient.GetFromJsonAsync<List<Dish>>("Dish") ?? new List<Dish>();
-        }
-
-        public async Task<Dish?> GetDishByIdAsync(int id)
-        {
-            return await _httpClient.GetFromJsonAsync<Dish>($"Dish/{id}");
-        }
-
-        public async Task<Dish?> CreateDishAsync(Dish dish)
-        {
-            var response = await _httpClient.PostAsJsonAsync("Dish", dish);
-            return await response.Content.ReadFromJsonAsync<Dish>();
-        }
-
-        public async Task UpdateDishAsync(int id, Dish dish)
-        {
-            await _httpClient.PutAsJsonAsync($"Dish/{id}", dish);
-        }
-
-        public async Task DeleteDishAsync(int id)
-        {
-            await _httpClient.DeleteAsync($"Dish/{id}");
-        }
-
-        // API Categorie
-        public async Task<List<Category>> GetCategoriesAsync()
-        {
-            return await _httpClient.GetFromJsonAsync<List<Category>>("Category") ?? new List<Category>();
-        }
-
-        public async Task<Category?> GetCategoryByIdAsync(int id)
-        {
-            return await _httpClient.GetFromJsonAsync<Category>($"Category/{id}");
-        }
-
-        public async Task<Category?> CreateCategoryAsync(Category category)
-        {
-            var response = await _httpClient.PostAsJsonAsync("Category", category);
-            return await response.Content.ReadFromJsonAsync<Category>();
-        }
-
-        public async Task UpdateCategoryAsync(int id, Category category)
-        {
-            await _httpClient.PutAsJsonAsync($"Category/{id}", category);
-        }
-
-        public async Task DeleteCategoryAsync(int id)
-        {
-            await _httpClient.DeleteAsync($"Category/{id}");
-        }
+        Success,
+        Error
     }
+    public static class ApiService
+    {
+        private const string API_URL = "http://localhost:5194";
+        public static string Email { get; set; }
+        public static string Password { get; set; }
+        public static async Task<ApiServiceResult<bool>> Register()
+        {
+            try
+            {
+                using HttpClient client = new HttpClient();
+                var httpResult = await client.PostAsJsonAsync($"{API_URL}/Account/Register",
+                    JsonContent.Create(new { Email, Password }));
+                var resultBody = await httpResult.Content.ReadAsStringAsync();
+                var data = httpResult.IsSuccessStatusCode;
+                return new ApiServiceResult<bool>(data);
+            }
+            catch (Exception e)
+            {
+                return new ApiServiceResult<bool>(e);
+            }
+        }
+
+        public static async Task<ApiServiceResult<Jwt>> GetJwtToken()
+        {
+            try
+            {
+                using HttpClient client = new HttpClient();
+                var httpResult = await client.PostAsJsonAsync($"{API_URL}/Account/Login",
+                    JsonContent.Create(new { Email = Email, Password = Password }));
+                var resultBody = await httpResult.Content.ReadAsStringAsync();
+                var data = JsonConvert.DeserializeObject<Jwt>(resultBody);
+                if (data.Token == null)
+                {
+                    return new ApiServiceResult<Jwt>(new Exception("Login fallito"));
+                }
+                AddRolesToJwt(data);
+                return new ApiServiceResult<Jwt>(data);
+            }
+            catch (Exception e)
+            {
+                return new ApiServiceResult<Jwt>(e);
+            }
+        }
+        private static void AddRolesToJwt(Jwt jwt)
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var token = handler.ReadJwtToken(jwt.Token);
+                var roles = token.Claims.Where((Claim c) => c.Type == "role").Select(c => c.Value).ToList();
+                jwt.Roles = roles;
+            }
+            catch { }
+
+        }
+        public static async Task<ApiServiceResult<List<Menu>>> Get()
+        {
+            try
+            {
+                using HttpClient client = new HttpClient();
+                var httpResult = await client.GetAsync($"{API_URL}/Menu");
+                var resultBody = await httpResult.Content.ReadAsStringAsync();
+                var data = JsonConvert.DeserializeObject<List<Menu>>(resultBody);
+                return new ApiServiceResult<List<Menu>>(data);
+            }
+            catch (Exception e)
+            {
+                return new ApiServiceResult<List<Menu>>(e);
+            }
+        }
+        public static async Task<ApiServiceResult<int>> Create(Menu newMenu, Jwt jwt)
+        {
+            try
+            {
+                using HttpClient httpclient = new HttpClient();
+                httpclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.Token);
+                var httpResult = await httpclient.PostAsync($"{API_URL}/Menu", JsonContent.Create(newMenu));
+                var resultBody = await httpResult.Content.ReadAsStringAsync();
+                var data = JsonConvert.DeserializeObject<int>(resultBody);
+
+                return new ApiServiceResult<int>(data);
+            }
+            catch (Exception e)
+            {
+                return new ApiServiceResult<int>(e);
+            }
+        }
+
+        public static async Task<ApiServiceResult<int>> Update(Menu menu, Jwt token)
+        {
+            try
+            {
+                using HttpClient httpclient = new ();
+                httpclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+
+                var httpResult = await httpclient.PutAsync($"{API_URL}/Menu/{menu.Id}", JsonContent.Create(menu));
+                var resultBody = await httpResult.Content.ReadAsStringAsync();
+                var data = JsonConvert.DeserializeObject<int>(resultBody);
+                return new ApiServiceResult<int>(data);
+            }
+            catch (Exception e)
+            {
+                return new ApiServiceResult<int>(e);
+            }
+        }
+        
+        
+        public static async Task<ApiServiceResult<int>> Delete(int id, Jwt token)
+        {
+            try
+            {
+                using HttpClient httpclient = new HttpClient();
+                httpclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+                var httpResult = await httpclient.DeleteAsync($"{API_URL}/Menu/{id}");
+                var resultBody = await httpResult.Content.ReadAsStringAsync();
+                var data = JsonConvert.DeserializeObject<int>(resultBody);
+                return new ApiServiceResult<int>(data);
+            }
+            catch (Exception e)
+            {
+                return new ApiServiceResult<int>(e);
+            }
+
+        }
+
+        internal static async Task Delete(Dish dish, Jwt token)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static async Task Create(Dish newDish, Jwt jwt)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static async Task Create(Category newCategory, Jwt? token)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static async Task Update(Category category, Jwt? token)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static async Task Delete(ristorante_backend.Models.Dish dish, Jwt? token)
+        {
+            throw new NotImplementedException();
+        }
+    } 
 }
