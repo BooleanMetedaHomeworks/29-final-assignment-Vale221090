@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ristorante_frontend.Views;
 
 namespace ristorante_frontend.ViewModels
 {
@@ -24,9 +25,9 @@ namespace ristorante_frontend.ViewModels
         {
             InitializeComponent();
         }
-        private void OnLoginButtonClick(object sender, RoutedEventArgs e)
+        private void OnLoginBtnClick(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new Uri("Views/DishView.xaml", UriKind.Relative));
+            this.NavigationService.Navigate(new DishesView());
         }
 
     }

@@ -81,7 +81,13 @@
                 </StackPanel>
             </DockPanel>
         </Border>
-
+        <Menu DockPanel.Dock="Top" x:Name="NavigationMenu" Visibility="Collapsed">
+            <MenuItem Header="Menu">
+                <MenuItem Header="Categorie" Click="NavigateToCategories"/>
+                <MenuItem Header="Piatti" Click="NavigateToDishes"/>
+                <MenuItem Header="Menu" Click="NavigateToMenus"/>
+            </MenuItem>
+        </Menu>
         <!-- Main Content -->
         <Grid Grid.Row="1" Margin="20">
             <Frame x:Name="MainFrame" 

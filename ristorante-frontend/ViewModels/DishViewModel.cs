@@ -1,235 +1,177 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using ristorante_frontend.Services;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Data;
+using ristorante_frontend.Models;
+using ristorante_frontend.Services;
+using ristorante_frontend.ViewModels;
 using FrontendDish = ristorante_frontend.Models.Dish;
 using BackendDish = ristorante_backend.Models.Dish;
+using CommunityToolkit.Mvvm.Input;
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+
 
 namespace ristorante_frontend.ViewModels
 {
-    public partial class DishViewModel : ObservableObject
+    public partial class DishViewModel : INotifyPropertyChanged
     {
-        private readonly ApiService _apiService;
-        private readonly ICollectionView _dishesView;
-
-        [ObservableProperty]
-        private ObservableCollection<FrontendDish> dishes = new();
-
-        [ObservableProperty]
-        private FrontendDish? selectedDish;
-
-        [ObservableProperty]
-        private string searchText = string.Empty;
-
-        [ObservableProperty]
-        private bool isLoading;
-
-        [ObservableProperty]
-        private string errorMessage = string.Empty;
-
-        [ObservableProperty]
-        private bool isEditingValue;
-
-        public bool IsEditing { get; private set; }
-
-        public DishViewModel(ApiService apiService)
+        private readonly CollectionViewSource _dishesViewSource;
+        private ObservableCollection<FrontendDish> _dishes;
+        private FrontendDish? _selectedDish;
+        private Category? _selectedCategory;
+        private string _searchText = string.Empty;
+        private bool _isAdmin;
+        public bool IsAdmin
         {
-            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
-            _dishesView = CollectionViewSource.GetDefaultView(Dishes);
-            _dishesView.Filter = DishFilter;
-
-            Application.Current.Dispatcher.InvokeAsync(async () =>
+            get => _isAdmin;
+            set
             {
-                await LoadDishesAsync();
-            });
-        }
-
-        private BackendDish ConvertToBackendDish(FrontendDish frontendDish)
-        {
-            return new BackendDish
-            {
-                Id = frontendDish.Id,
-                Name = frontendDish.Name,
-                Description = frontendDish.Description,
-                Price = frontendDish.Price,
-                CategoryId = frontendDish.CategoryId
-            };
-        }
-
-        private FrontendDish ConvertToFrontendDish(BackendDish backendDish)
-        {
-            return new FrontendDish
-            {
-                Id = backendDish.Id,
-                Name = backendDish.Name,
-                Description = backendDish.Description,
-                Price = backendDish.Price,
-                CategoryId = backendDish.CategoryId
-            };
-        }
-
-        private async Task LoadDishesAsync()
-        {
-            try
-            {
-                IsLoading = true;
-                ErrorMessage = string.Empty;
-
-                var dishList = await _apiService.GetDishesAsync();
-
-                Application.Current.Dispatcher.Invoke(() =>
+                if (_isAdmin != value)
                 {
-                    Dishes.Clear();
-                    foreach (var backendDish in dishList)
-                    {
-                        Dishes.Add(ConvertToFrontendDish(backendDish));
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Errore nel caricamento dei piatti: {ex.Message}";
-            }
-            finally
-            {
-                IsLoading = false;
-            }
-        }
-
-        [RelayCommand(CanExecute = nameof(CanAddDish))]
-        private async Task AddDishAsync()
-        {
-            try
-            {
-                IsEditing = true;
-                var newDish = new FrontendDish
-                {
-                    Name = "Nuovo Piatto",
-                    Description = "Inserire descrizione",
-                    Price = 0.00m
-                };
-
-                var backendDish = ConvertToBackendDish(newDish);
-                var createdBackendDish = await _apiService.CreateDishAsync(backendDish);
-
-                if (createdBackendDish != null)
-                {
-                    var createdFrontendDish = ConvertToFrontendDish(createdBackendDish);
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        Dishes.Add(createdFrontendDish);
-                        SelectedDish = createdFrontendDish;
-                    });
+                    _isAdmin = value;
+                    OnPropertyChanged();
+                    NotifyCommandsCanExecuteChanged();
                 }
             }
-            catch (Exception ex)
+        }
+        public string SearchText
+        {
+            get; set;
+        } = string.Empty;
+
+        private Jwt? _token;
+
+        public ICollectionView DishesView => _dishesViewSource.View;
+
+        // Rimosso required e init per evitare ambiguità
+        private IAsyncRelayCommand _addDishCommand;
+        private IAsyncRelayCommand<FrontendDish> _saveDishCommand;
+        private IAsyncRelayCommand<FrontendDish> _deleteDishCommand;
+        private IAsyncRelayCommand _assignToCategoryCommand;
+        private IAsyncRelayCommand _removeFromCategoryCommand;
+
+        public IAsyncRelayCommand AddDishCommand => _addDishCommand;
+        public IAsyncRelayCommand<FrontendDish> SaveDishCommand => _saveDishCommand;
+        public IAsyncRelayCommand<FrontendDish> DeleteDishCommand => _deleteDishCommand;
+        public IAsyncRelayCommand AssignToCategoryCommand => _assignToCategoryCommand;
+        public IAsyncRelayCommand RemoveFromCategoryCommand => _removeFromCategoryCommand;
+
+        // Proprietà con nomi univoci
+        private ObservableCollection<FrontendDish> DishCollection
+        {
+            get => _dishes;
+            set
             {
-                ErrorMessage = $"Errore durante l'aggiunta del piatto: {ex.Message}";
-            }
-            finally
-            {
-                IsEditing = false;
+                if (_dishes != value)
+                {
+                    _dishes = value;
+                    _dishesViewSource.Source = _dishes;
+                    OnPropertyChanged();
+                }
             }
         }
 
-        private bool CanAddDish() => !IsLoading && !IsEditing;
-
-        [RelayCommand(CanExecute = nameof(CanEditDish))]
-        private async Task EditDishAsync(FrontendDish dish)
+        private FrontendDish? CurrentDish
         {
-            if (dish == null) return;
+            get => _selectedDish;
+            set
+            {
+                if (_selectedDish != value)
+                {
+                    _selectedDish = value;
+                    OnPropertyChanged();
+                    NotifyCommandsCanExecuteChanged();
+                }
+            }
+        }
 
+        private Category? CurrentCategory
+        {
+            get => _selectedCategory;
+            set
+            {
+                if (_selectedCategory != value)
+                {
+                    _selectedCategory = value;
+                    OnPropertyChanged();
+                    NotifyCommandsCanExecuteChanged();
+                }
+            }
+        }
+
+        private string CurrentSearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (_searchText != value)
+                {
+                    _searchText = value;
+                    OnPropertyChanged();
+                    FilterDishes();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+    
+
+
+        private void NotifyCommandsCanExecuteChanged()
+        {
+            _addDishCommand.NotifyCanExecuteChanged();
+            _saveDishCommand.NotifyCanExecuteChanged();
+            _deleteDishCommand.NotifyCanExecuteChanged();
+            _assignToCategoryCommand.NotifyCanExecuteChanged();
+            _removeFromCategoryCommand.NotifyCanExecuteChanged();
+        }
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
+
+        private async Task InitializeAsync()
+        {
             try
             {
-                IsEditing = true;
-                var backendDish = ConvertToBackendDish(dish);
-                await _apiService.UpdateDishAsync(dish.Id, backendDish);
-
-                Application.Current.Dispatcher.Invoke(() =>
+                var tokenResult = await ApiService.GetJwtToken();
+                if (!tokenResult.IsConnectionSuccess)
                 {
-                    var index = Dishes.IndexOf(dish);
-                    if (index != -1)
-                    {
-                        Dishes[index] = dish;
-                        _dishesView.Refresh();
-                    }
-                });
+                    MessageBox.Show($"Errore di autenticazione: {tokenResult.ErrorMessage}");
+                    return;
+                }
+
+                _token = tokenResult.Data;
+                IsAdmin = _token?.Roles?.Contains("Admin") ?? false;
+
+               
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Errore durante la modifica del piatto: {ex.Message}";
-            }
-            finally
-            {
-                IsEditing = false;
+                MessageBox.Show($"Errore durante l'inizializzazione: {ex.Message}");
             }
         }
 
-        private bool CanEditDish() => SelectedDish != null && !IsLoading && !IsEditing;
-
-        [RelayCommand(CanExecute = nameof(CanDeleteDish))]
-        private async Task DeleteDishAsync(FrontendDish dish)
+        private void FilterDishes()
         {
-            if (dish == null) return;
+            if (_dishesViewSource?.View == null) return;
 
-            var result = MessageBox.Show(
-                $"Sei sicuro di voler eliminare il piatto {dish.Name}?",
-                "Conferma eliminazione",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result != MessageBoxResult.Yes) return;
-
-            try
+            _dishesViewSource.View.Filter = item =>
             {
-                IsLoading = true;
-                await _apiService.DeleteDishAsync(dish.Id);
+                if (string.IsNullOrWhiteSpace(_searchText)) return true;
+                if (item is not FrontendDish dish) return false;
 
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    Dishes.Remove(dish);
-                    if (SelectedDish == dish)
-                    {
-                        SelectedDish = null;
-                    }
-                    _dishesView.Refresh();
-                });
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Errore durante l'eliminazione del piatto: {ex.Message}";
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+                return dish.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+                       dish.Description?.Contains(_searchText, StringComparison.OrdinalIgnoreCase) == true;
+            };
         }
-
-        private bool CanDeleteDish() => SelectedDish != null && !IsLoading && !IsEditing;
-
-        private bool DishFilter(object item)
-        {
-            if (string.IsNullOrEmpty(SearchText)) return true;
-            if (item is not FrontendDish dish) return false;
-
-            return dish.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                   (dish.Description?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false);
-        }
-
-        partial void OnSearchTextChanged(string value)
-        {
-            Application.Current.Dispatcher.Invoke(() => _dishesView.Refresh());
-        }
-
-        [RelayCommand(CanExecute = nameof(CanRefresh))]
-        private async Task RefreshAsync()
-        {
-            await LoadDishesAsync();
-        }
-
-        private bool CanRefresh() => !IsLoading && !IsEditing;
     }
 }
+
+        

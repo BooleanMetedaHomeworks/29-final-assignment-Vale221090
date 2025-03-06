@@ -170,5 +170,15 @@ namespace ristorante_frontend.Services
         {
             throw new NotImplementedException();
         }
+
+        internal static async Task CreateDish(Dish newDish, string v)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static async Task GetDishes()
+        {
+            throw new NotImplementedException();
+        }
     } 
 }
