@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using ristorante_frontend.Views;
 using System.Windows.Controls;
+using System.Windows;
+
 
 namespace ristorante_frontend.Views
 {
@@ -8,43 +10,26 @@ namespace ristorante_frontend.Views
         public CategoryView()
         {
             InitializeComponent();
-            LoadCategories();
-        }
-
-        private async void LoadCategories()
-        {
-            try
-            {
-                // TODO: Implementare la chiamata al service per caricare le categorie
-                // CategoriesList.ItemsSource = await categoriesService.GetAllCategories();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Errore nel caricamento delle categorie: {ex.Message}",
-                              "Errore",
-                              MessageBoxButton.OK,
-                              MessageBoxImage.Error);
-            }
-        }
-
-        private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
-        {
-            // TODO: Implementare la logica di filtro
         }
 
         private void OnAddCategoryClick(object sender, RoutedEventArgs e)
         {
-            // TODO: Aprire dialog per nuova categoria
+            //metodo per aggiungere una nuova categoria
         }
 
         private void OnEditClick(object sender, RoutedEventArgs e)
         {
-            // TODO: Aprire dialog modifica categoria
+            //metodo per modificare una categoria
         }
 
-        private async void OnDeleteClick(object sender, RoutedEventArgs e)
+        private void OnDeleteClick(object sender, RoutedEventArgs e)
         {
-            // TODO: Implementare la logica di eliminazione con conferma
+            //metodo per eliminare una categoria
+        }
+
+        private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+        {
+            //metodo per gestire la ricerca delle categorie
         }
     }
 }

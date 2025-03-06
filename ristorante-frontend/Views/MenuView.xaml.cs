@@ -39,7 +39,7 @@ namespace ristorante_frontend.Views
             if (MenuList.SelectedItem is Menu selectedMenu && DishList.SelectedItem is Dish selectedDish)
             {
                 selectedMenu.Dishes.Remove(selectedDish);
-                // Opzionale: aggiornaro la vista
+                
                 DishList.Items.Refresh();
             }
             else
