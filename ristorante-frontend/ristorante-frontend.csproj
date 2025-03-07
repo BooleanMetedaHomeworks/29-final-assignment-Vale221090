@@ -17,9 +17,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="9.0.2" />
     <PackageReference Include="MvcContrib" Version="2.0.95" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Octokit" Version="14.0.0" />
-    <PackageReference Include="Refit" Version="8.0.0" />
-    <PackageReference Include="xunit.extensibility.core" Version="2.9.3" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\MainWindow.xaml">
