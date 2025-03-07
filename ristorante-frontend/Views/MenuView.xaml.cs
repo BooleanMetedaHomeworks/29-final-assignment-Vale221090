@@ -1,7 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using ristorante_backend.Models;
-using Menu = ristorante_backend.Models.Menu;
+
+using ristorante_frontend.Models;
+using Menu = ristorante_frontend.Models.Menu;
+
 
 namespace ristorante_frontend.Views
 {
@@ -36,7 +38,7 @@ namespace ristorante_frontend.Views
 
         private void OnRemoveDishFromMenu(object sender, RoutedEventArgs e)
         {
-            if (MenuList.SelectedItem is Menu selectedMenu && DishList.SelectedItem is Dish selectedDish)
+            if (MenuList.SelectedItem is Models.Menu selectedMenu && DishList.SelectedItem is Dish selectedDish)
             {
                 selectedMenu.Dishes.Remove(selectedDish);
                 

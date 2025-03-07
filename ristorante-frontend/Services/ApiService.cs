@@ -166,11 +166,7 @@ namespace ristorante_frontend.Services
             throw new NotImplementedException();
         }
 
-        internal static async Task Delete(ristorante_backend.Models.Dish dish, Jwt? token)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         internal static async Task CreateDish(Dish newDish, string v)
         {
             throw new NotImplementedException();

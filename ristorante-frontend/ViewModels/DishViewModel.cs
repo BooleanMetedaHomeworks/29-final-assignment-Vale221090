@@ -6,8 +6,7 @@ using System.Windows.Data;
 using ristorante_frontend.Models;
 using ristorante_frontend.Services;
 using ristorante_frontend.ViewModels;
-using FrontendDish = ristorante_frontend.Models.Dish;
-using BackendDish = ristorante_backend.Models.Dish;
+
 using CommunityToolkit.Mvvm.Input;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
@@ -17,9 +16,9 @@ namespace ristorante_frontend.ViewModels
 {
     public partial class DishViewModel : INotifyPropertyChanged
     {
-        private readonly CollectionViewSource _dishesViewSource;
-        private ObservableCollection<FrontendDish> _dishes;
-        private FrontendDish? _selectedDish;
+        private readonly CollectionViewSource? _dishesViewSource;
+        private ObservableCollection<Dish>? _dishes;
+        private Dish? _selectedDish;
         private Category? _selectedCategory;
         private string _searchText = string.Empty;
         private bool _isAdmin;
@@ -45,21 +44,21 @@ namespace ristorante_frontend.ViewModels
 
         public ICollectionView DishesView => _dishesViewSource.View;
 
-        // Rimosso required e init per evitare ambiguità
+        
         private IAsyncRelayCommand _addDishCommand;
-        private IAsyncRelayCommand<FrontendDish> _saveDishCommand;
-        private IAsyncRelayCommand<FrontendDish> _deleteDishCommand;
+        private IAsyncRelayCommand<Dish> _saveDishCommand;
+        private IAsyncRelayCommand<Dish> _deleteDishCommand;
         private IAsyncRelayCommand _assignToCategoryCommand;
         private IAsyncRelayCommand _removeFromCategoryCommand;
 
         public IAsyncRelayCommand AddDishCommand => _addDishCommand;
-        public IAsyncRelayCommand<FrontendDish> SaveDishCommand => _saveDishCommand;
-        public IAsyncRelayCommand<FrontendDish> DeleteDishCommand => _deleteDishCommand;
+        public IAsyncRelayCommand<Dish> SaveDishCommand => _saveDishCommand;
+        public IAsyncRelayCommand<Dish> DeleteDishCommand => _deleteDishCommand;
         public IAsyncRelayCommand AssignToCategoryCommand => _assignToCategoryCommand;
         public IAsyncRelayCommand RemoveFromCategoryCommand => _removeFromCategoryCommand;
 
         // Proprietà con nomi univoci
-        private ObservableCollection<FrontendDish> DishCollection
+        private ObservableCollection<Dish> DishCollection
         {
             get => _dishes;
             set
@@ -73,7 +72,7 @@ namespace ristorante_frontend.ViewModels
             }
         }
 
-        private FrontendDish? CurrentDish
+        private Dish? CurrentDish
         {
             get => _selectedDish;
             set
@@ -158,6 +157,9 @@ namespace ristorante_frontend.ViewModels
             }
         }
 
+
+
+
         private void FilterDishes()
         {
             if (_dishesViewSource?.View == null) return;
@@ -165,7 +167,7 @@ namespace ristorante_frontend.ViewModels
             _dishesViewSource.View.Filter = item =>
             {
                 if (string.IsNullOrWhiteSpace(_searchText)) return true;
-                if (item is not FrontendDish dish) return false;
+                if (item is not Dish dish) return false;
 
                 return dish.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
                        dish.Description?.Contains(_searchText, StringComparison.OrdinalIgnoreCase) == true;

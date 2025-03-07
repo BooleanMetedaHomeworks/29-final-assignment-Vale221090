@@ -26,6 +26,15 @@ CREATE TABLE MenuDishes (
     FOREIGN KEY (MenuId) REFERENCES Menus(Id),
     FOREIGN KEY (DishId) REFERENCES Dishes(Id)
 );
+CREATE TABLE Users (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Email NVARCHAR(255) NOT NULL,
+    PasswordHash NVARCHAR(255) NOT NULL
+);
+
+-- Aggiunta di un indice univoco sull'email
+CREATE UNIQUE INDEX IX_Users_Email ON Users(Email);
+
 -- Inserimento Categories
 INSERT INTO Categories (Name) VALUES 
 ('Antipasti'),
@@ -98,3 +107,9 @@ INSERT INTO MenuDishes (MenuId, DishId) VALUES
 (3, 12), -- Insalata
 (3, 13); -- Tiramisù
 
+-- Inserimento utenti 
+INSERT INTO Users (Email, PasswordHash) VALUES 
+    ('admin@ristorante.com', 'AQAAAAIAAYagAAAAEFIXBMfW4gF5qYx8Y9NNote: This is a hashed password'),
+    ('chef@ristorante.com', 'AQAAAAIAAYagAAAAELPX2RmFvY4gH7x9Y9NNote: This is a hashed password'),
+    ('waiter@ristorante.com', 'AQAAAAIAAYagAAAAEKMN5BNfZ4gQ8yYx2Y9NNote: This is a hashed password'),
+    ('manager@ristorante.com', 'AQAAAAIAAYagAAAAEWQX5BMfP4gL2yYx8Y9NNote: This is a hashed password');
